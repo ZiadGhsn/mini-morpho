@@ -11,11 +11,5 @@ router.post("/logout", controller.logout);
 router.post("/forgot-password",verifyJWT ,controller.forgotPassword);
 router.post("/reset-password",verifyJWT, controller.resetPassword);
 router.post("/change-password",verifyJWT, controller.changePassword);
-router.post(
-    "/admin-signup",
-    verifyJWT,
-    verifyRole([admin]),
-    controller.signUpDeveloper,
-  );
 
 module.exports = router;

@@ -182,53 +182,31 @@ exports.resetPassword = async (req, res, next) => {
     return res.json("Password Changed Successfully");
   };
   exports.changePassword = async (req, res, next) => {
-    const userId = req.user;
-      const userToBeFetched = await getModelById(
-        userSchema,
-        userId);
-      if (!userToBeFetched)
+      const userId = req.user;
+  
+      // Ensure we fetch the Mongoose document, not a plain object
+      const userToBeFetched = await userSchema.findById(userId);
+  
+      if (!userToBeFetched) {
         return resHandle.handleError(res, 404, "User Not Found", false);
-      const { currentPassword, newPassword } = req.body;
-      bcrypt.compare(
-        currentPassword,
-        userToBeFetched.password,
-      async (err, result) => {
-        if (err) {
-          const error = new expressError("Password Comparison Error", 500);
-          next(error);
-        }
-        if (!result) {
-          const error = new expressError("Current Password is Incorrect", 401);
-          next(error);
-        }
-        const hashedNewPassword = await bcrypt.hash(newPassword, 12);
-        userToBeFetched.password = hashedNewPassword;
-        await userToBeFetched.save();
-        return res.json("Password Changed Successfully");
-      },
-    );
-  };
-exports.signUpDeveloper = async (req, res) => {
-  try {
-    bcrypt.hash(req.body.password, 12, async (err, hash) => {
-      if (err) return resHandle.handleError(res, 500, `Error ${err}`, false);
-      else {
-        try {
-          const newUser = await user
-            .create({
-              ...req.body,
-              verified: false,
-              password: hash,
-            })
-            .then((result) => {
-              nodemailerController.sendOTPVerification(result, res);
-            });
-        } catch (error) {
-          resHandle.handleError(res, 500, `Error ${error}`, false);
-        }
       }
-    });
-  } catch (error) {
-    resHandle.handleError(res, 500, `Error ${error}`, false);
-  }
-};
+  
+      const { currentPassword, newPassword } = req.body;
+  
+      // Compare the current password
+      const isMatch = await bcrypt.compare(currentPassword, userToBeFetched.password);
+      if (!isMatch) {
+        return resHandle.handleError(res, 401, "Current Password is incorrect", false);
+      }
+  
+      // Hash the new password
+      const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+  
+      // Update the user's password
+      userToBeFetched.password = hashedNewPassword;
+      await userToBeFetched.save();
+  
+      return resHandle.handleData(res, 200, "Password Changed Successfully", true);
+
+  };
+  

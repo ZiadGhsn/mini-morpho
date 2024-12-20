@@ -14,8 +14,8 @@ const generateToken = (user, secretKey, time, role) => {
 const generateResetToken = (user) => {
   return jwt.sign(
     {
-      userId: user.id,
-      email: user.email,
+      userId: user?.id,
+      email: user?.email,
     },
     process.env.RESET_PASSWORD_KEY,
     { expiresIn: "20m" },
