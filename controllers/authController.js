@@ -16,27 +16,28 @@ const saveResetLinkToUser = nodemailerFunctions.saveResetLinkToUser;
 const resHandle = require("../utils/responseHandle");
 
 exports.signup =  async (req, res, next) => {
-    const { password, role } = req.body;
-    const hashedPassword = await hashPassword(password);
-    const roleToBeFetched = await getModelById(
-        roleSchema,
-        role,
-    );
-    console.log(roleToBeFetched);
-    if (roleToBeFetched.role == "Developer" || roleToBeFetched.role == "Admin")
-      return res.status(403).json("Forbidden");
+  const { password, role } = req.body;
+  const hashedPassword = await hashPassword(password);
+  const roleToBeFetched = await getModelById(
+      roleSchema,
+      role,
+  );
+  console.log(roleToBeFetched);
+  if (roleToBeFetched.role == "Developer" || roleToBeFetched.role == "Admin")
+    return res.status(403).json("Forbidden");
 
-    const newUser = await userSchema
-      .create({
-        ...req.body,
-        verified: false,
-        password: hashedPassword,
-        role: role,
-      })
-      .then((result) => {
-        nodemailerController.sendOTPVerification(result, res);
-      });
-  };
+  const newUser = await userSchema
+    .create({
+      ...req.body,
+      verified: false,
+      password: hashedPassword,
+      role: role,
+    })
+    .then((result) => {
+      nodemailerController.sendOTPVerification(result, res);
+    });
+  //then send email
+};
 
 exports.login =  async (req, res, next) => {
     const { email, password } = req.body;

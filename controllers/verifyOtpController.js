@@ -8,32 +8,36 @@ const { getAllModels, getModelById, findOne,createModel, deleteModelById, update
 //test again
 
 exports.sendOTPVerification = async ({ _id, email }, res) => {
-    const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
-    const mailOptions = {
-      from: config.EMAIL,
-      to: email,
-      subject: "Verify your Email",
-      html: `<p> Enter ${otp} in the app to verify your account </p>`,
-    };
-    const saltRounds = 10;
-    const hashedOtp = await bcrypt.hash(otp, saltRounds);
-    const newOTPVerification = await new userOtpSchema({
-      userId: _id,
-      otp: hashedOtp,
-      createdAt: Date.now(),
-      expiresAt: Date.now() + 3600000,
-    });
-    await newOTPVerification.save();
-    await transporter.sendMail(mailOptions);
-    res.json({
-      status: "Pending",
-      message: "Verification otp email sent",
-      data: {
-        userId: _id,
-        email,
-      },
-    });
+  const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
+  const mailOptions = {
+    from: config.EMAIL,
+    to: email,
+    subject: "Verify your Email",
+    html: `<p> Enter ${otp} in the app to verify your account </p>`,
   };
+  const saltRounds = 10;
+  const hashedOtp = await bcrypt.hash(otp, saltRounds);
+  const newOTPVerification = await new userOtpSchema({
+    userId: _id,
+    otp: hashedOtp,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + 3600000,
+  });
+
+  await newOTPVerification.save();
+  console.log(mailOptions);
+
+  await transporter.sendMail(mailOptions);
+
+  res.json({
+    status: "Pending",
+    message: "Verification otp email sent",
+    data: {
+      userId: _id,
+      email,
+    },
+  });
+};
 exports.verifyOTP = async (req, res) => {
     let { userId, otp } = req.body;
     if (!userId || !otp) return res.status(404).json("User or OTP Not Found");
