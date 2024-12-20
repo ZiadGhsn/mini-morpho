@@ -15,13 +15,6 @@ const productSchema = new mongoose.Schema(
       match:
         /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/,
     },
-    multiUrls: [
-      {
-        type: String,
-        match:
-          /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/,
-      },
-    ],
     imageUrl: {
       type: String,
       required: true,
@@ -41,10 +34,6 @@ const productSchema = new mongoose.Schema(
     published: {
       type: Boolean,
       default: false,
-    },
-    asset_library: {
-      type: mongoose.Types.ObjectId,
-      ref: "assetLibrary",
     },
     variants: [
       {

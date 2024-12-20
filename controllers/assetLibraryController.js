@@ -1,7 +1,8 @@
-const { getAllModels, getModelById, findOne,createModel, deleteModelById, updateModelById } = require('../services/mongooseCrud'); // Adjust the path as needed
+const { getAllModels, getModelById, findOne,createModel, deleteModelById, updateModelById ,getAllModelsByQuery} = require('../services/mongooseCrud'); // Adjust the path as needed
 const expressError = require("../errors/expressError");
 const assetSchema = require("../models/assetLibraryModel");
-const mongoose = require("mongoose");
+const userSchema = require("../models/userModel");
+const productsSchema = require("../models/productModel");
 
 exports.createAsset = async(req, res, next ) => {
   const inputs=req.body;
@@ -62,3 +63,20 @@ exports.deleteAsset=async(req,res,next)=>{
   }
   return res.json("Asset Successfully Deleted");
 };
+
+exports.getProductsByUser = async (req, res, next) => {
+  const { userId } = req.params;
+    const query = { User: userId }; // Filter by the `User` field
+    const populatedKeys = "product"; // Populate the `product` field
+
+    // Use the query to fetch products
+    const products = await getAllModelsByQuery(assetSchema, query, populatedKeys);
+
+    if (!products ) {
+      const error = new expressError("No products found for this user.", 404);
+      return next(error);
+    }
+
+    return res.status(200).json(products);
+};
+

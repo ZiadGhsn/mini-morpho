@@ -36,7 +36,6 @@ exports.signup =  async (req, res, next) => {
       .then((result) => {
         nodemailerController.sendOTPVerification(result, res);
       });
-    //then send email
   };
 
 exports.login =  async (req, res, next) => {

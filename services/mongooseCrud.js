@@ -10,7 +10,7 @@ exports.getAllModels= async(model, populatedKeys = undefined, selectedKeys = und
     let modelToBeRetrieved = await model.findOne(query).populate(populatedKeys ?? undefined);
     return modelToBeRetrieved;
   }
-  exports.createModel = async (model, inputs, helper ) => {
+  exports.createModel = async (model, inputs ) => {
     let modelToBeCreated = new model(inputs);
     await modelToBeCreated.save();
     return modelToBeCreated;
@@ -24,3 +24,13 @@ exports.getAllModels= async(model, populatedKeys = undefined, selectedKeys = und
     if (modelToBeUpdated) return modelToBeUpdated;
     else if (!modelToBeUpdated) return null;
   }
+
+  exports.getAllModelsByQuery = async (model, query = {}, populatedKeys = undefined, selectedKeys = undefined) => {
+        const modelToBeRetrieved = await model
+        .find(query)
+        .populate(populatedKeys ?? undefined) 
+        .select(selectedKeys ?? undefined); 
+  
+      return modelToBeRetrieved;
+  };
+  

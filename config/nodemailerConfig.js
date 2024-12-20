@@ -6,8 +6,8 @@ let transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   auth: {
-    user: EMAIL, // replace with your email
-    pass: PASSWORD, // replace with your password
+    user: EMAIL,
+    pass: PASSWORD, 
   },
 });
 module.exports = transporter;

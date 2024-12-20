@@ -1,7 +1,6 @@
 const productsSchema = require("../models/productModel");
 const { getAllModels, getModelById, findOne,createModel, deleteModelById, updateModelById } = require('../services/mongooseCrud'); // Adjust the path as needed
 const expressError = require("../errors/expressError");
-const assetLibraryModel = require("../models/assetLibraryModel");
 
 exports.createProduct = async (req, res, next) => {
     const newProduct = await createModel(
@@ -30,21 +29,6 @@ exports.getProductById = async(req,res,next)=>{
       }
       return res.status(200).json(productToBeRetrieved);
 };
-exports.getProductWithAsset = async (req, res) => {
-    const { id } = req.params;
-    const populatedKeys="asset_library";
-    let productToBeRetrieved = await getModelById(
-      productsSchema,
-      id,
-      populatedKeys,
-    )
-    if (!productToBeRetrieved) {
-        const error = new expressError("no Product was found", 400);
-        return next(error);
-      }
-    return res.status(200).json(productToBeRetrieved)
-};
-
 exports.updateProductById = async (req,res,next) =>{
   const {id} = req.params;
   const productToBeUpdated =await updateModelById(
