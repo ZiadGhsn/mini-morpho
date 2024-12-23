@@ -14,8 +14,10 @@ exports.createAsset = async(req, res, next ) => {
 };
 
 exports.getAllAssets = async (req, res, next ) => {
+  const populatedKeys="product"
   let allAssets = await getAllModels(
     assetSchema,
+    populatedKeys,
   );
   if(!allAssets){
     const error = new expressError("Asset Not Found",404);
@@ -64,16 +66,14 @@ exports.deleteAsset=async(req,res,next)=>{
   return res.json("Asset Successfully Deleted");
 };
 
-exports.getProductsByUser = async (req, res, next) => {
+exports.getAssetsByProductId = async (req, res, next) => {
     const { id } = req.params;
-
-    // Check if the user exists
-    const user = await getModelById(userSchema, id);
-    if (!user) {
-      const error = new expressError("User not found.", 404);
+    const product = await getModelById(productsSchema, id);
+    if (!product) {
+      const error = new expressError("product not found.", 404);
       return next(error);
     }
-    const query = { userId: id }; 
+    const query = { product: id }; 
 
     const populatedKeys = "product"; // Assuming `product` is a field in the assetSchema
     const products = await getAllModelsByQuery(assetSchema, query, populatedKeys);
