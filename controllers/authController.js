@@ -14,6 +14,7 @@ const sendResetEmail = nodemailerFunctions.sendResetEmail;
 const verifyResetLink = nodemailerFunctions.verifyResetLink;
 const saveResetLinkToUser = nodemailerFunctions.saveResetLinkToUser;
 const resHandle = require("../utils/responseHandle");
+const { REFRESH_TOKEN_SECRET,ACCESS_TOKEN_SECRET } = require("../config/envVariables");
 
 exports.signup =  async (req, res, next) => {
   const { password, role } = req.body;
@@ -90,35 +91,6 @@ exports.login =  async (req, res, next) => {
       return res.json(accessToken);
     }
   };
-
-exports.handleRefreshToken = async (req, res, next) => {
-    const cookies = req.headers.cookies;
-    if (!cookies) {
-      const error = new expressError("Username and Password are Required", 404);
-      next(error);
-    }
-    const refreshToken = cookies.split("=")[1];
-    const query = { refreshToken: refreshToken };
-    const foundUser = await getModelByQuery(
-        userSchema,
-        query,
-    );
-    if (!foundUser) {
-      const error = new expressError("Forbidden", 400);
-      next(error);
-    }
-    jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET, (err, decoded) => {
-      if (err || foundUser._id.toString() !== decoded.userId) {
-        const error = new expressError("Forbidden", 403);
-        next(error);
-      }
-      const accessToken = generateToken(decoded, config.ACCESS_TOKEN_SECRET, {
-        expiresIn: "30d",
-      });
-      res.json({ accessToken });
-    });
-  };
-
 exports.logout = async (req, res, next) => {
     // Check for the cookies in the request headers
     const cookie = req.headers.cookie; // Corrected to 'cookie'
@@ -143,22 +115,35 @@ exports.logout = async (req, res, next) => {
     }
   };
   
-exports.forgotPassword = async (req, res, next) => {
-    const { email } = req.body;
-    const userToBeFetched = await findOne(
-        userSchema,
-        { email: email },
-    ); 
-    if (!userToBeFetched) {
-      const error = new expressError("User Not Found", 404);
-      next(error);
-    }
-    const token = generateResetToken(userToBeFetched);
-    const data = `${config.CLIENT_URL}/resetpassword/${token}`;
-    await saveResetLinkToUser(userToBeFetched, token);
-    sendResetEmail(userToBeFetched.email, token, data);
-    return res.json("Email Sent Successfully");
+  exports.forgotPassword = async (req, res, next) => {
+      const { email } = req.body;
+      const userToBeFetched = await findOne(userSchema, { email });
+  
+      if (!userToBeFetched) {
+        const error = new expressError("User Not Found", 404);
+        return next(error); // Ensure you `return` after calling `next` to avoid further execution.
+      }
+  
+      const token = generateResetToken(userToBeFetched);
+      const resetLink = `${config.CLIENT_URL}/resetpassword/${token}`;
+      await saveResetLinkToUser(userToBeFetched, token);
+  
+      sendResetEmail(email, resetLink, (err, info) => {
+        if (err) {
+          return res.status(500).json({
+            error: `Error sending email: ${err.message}`,
+            success: false,
+          });
+        }
+        return res.status(200).json({
+          message: "Email Sent Successfully",
+          success: true,
+          data: info.response,
+        });
+      });
+
   };
+  
 
 exports.resetPassword = async (req, res, next) => {
     const { resetLink, newPass } = req.body;

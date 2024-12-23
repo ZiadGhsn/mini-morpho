@@ -1,6 +1,6 @@
 const transporter = require("../config/nodemailerConfig");
 const jwt = require("jsonwebtoken");
-const sendResetEmail = (email, token, resetLink) => {
+const sendResetEmail = (email, resetLink, callback) => {
   transporter.sendMail(
     {
       from: process.env.EMAIL,
@@ -8,22 +8,10 @@ const sendResetEmail = (email, token, resetLink) => {
       subject: "Reset Password",
       html: `<a href="${resetLink}">Reset Password</a>`,
     },
-    (err, info) => {
-      if (err) {
-        return res.status(500).json({
-          Error: `Error ${err}`,
-          success: false,
-        });
-      } else {
-        return res.status(200).json({
-          message: "Email Sent Successfully",
-          success: true,
-          data: info.response,
-        });
-      }
-    },
+    callback,
   );
 };
+
 const verifyResetLink = (resetLink) => {
   return new Promise((resolve, reject) => {
     jwt.verify(

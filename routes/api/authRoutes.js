@@ -6,7 +6,6 @@ const { admin, designer } = require("../../constants");
 
 router.post("/login", controller.login);
 router.post("/signup", controller.signup);
-router.post("/refresh-token", controller.handleRefreshToken);
 router.post("/logout", controller.logout);
 router.post("/forgot-password",verifyJWT ,controller.forgotPassword);
 router.post("/reset-password",verifyJWT, controller.resetPassword);
