@@ -7,5 +7,5 @@ router.get("/get-all", controller.getAllAssets);
 router.get("/get-by-id/:id", controller.getAssetById);
 router.put("/update-by-id/:id", controller.updateAsset);
 router.delete("/delete-by-id/:id", controller.deleteAsset);
-router.get("/get-Product-with-User", controller.getProductsByUser);
+router.get("/get-Product-with-User/:id", controller.getProductsByUser);
 module.exports = router;
