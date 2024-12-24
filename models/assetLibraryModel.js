@@ -10,10 +10,12 @@ const assetLibrarySchema = new mongoose.Schema(
     type: mongoose.Types.ObjectId,
     ref: "User",
   },
-  product:{
+  product:[
+    {
     type: mongoose.Types.ObjectId,
     ref: "Products",
   }
+]
 },
   { timestamps: true, collection: "assetlibraries" }
 );
